@@ -1,0 +1,253 @@
+﻿<UserControl x:Class="Carlen.CustomCalendar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Carlen"
+             mc:Ignorable="d"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:AutoWidth x:Key="AutoWidth" />
+        <ObjectDataProvider x:Key="Week"
+                            ObjectType="{x:Type sys:Enum}"
+                            MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type  TypeName="local:BaseDateTime" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <local:BaseDate x:Key="Time" />
+        <local:BaseSelectStyle x:Key="Select" />
+        <local:DateTimeCombo x:Key="DateTime" />
+        <local:SelectDateTimeList x:Key="SDT" />
+        <Style TargetType="local:CustomCalendar">
+            <Setter Property="SelectDateTime"
+                    Value="{Binding Source={StaticResource Time},  Path=SelectDateTimeList}" />
+        </Style>
+    </UserControl.Resources>
+    <Grid x:Name="GridPanel"
+          Tag="{Binding ElementName=LB,Path=Tag}">
+        <ListBox  Margin="0,0,0,10"
+                  x:Name="LB"
+                  SelectionMode="Single"
+                  BorderBrush="Silver"
+                  BorderThickness="0,1,0,1">
+            <ListBox.ItemsSource>
+                <MultiBinding  Converter="{StaticResource DateTime}">
+                    <Binding ElementName="UC_DateTime_"
+                             Path="SetYear" />
+                    <Binding ElementName="UC_DateTime_"
+                             Path="SetMonth" />
+                    <Binding   Source="{StaticResource Time}" />
+                </MultiBinding>
+            </ListBox.ItemsSource>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel    Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorLevel=1,AncestorType=ScrollContentPresenter}, Path=ActualWidth}"
+                                  ItemWidth="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Width,Converter={StaticResource AutoWidth}}" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.Template>
+                <ControlTemplate TargetType="ListBox">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="PreviousButton"
+                                    Grid.Column="0"
+                                    Background="Transparent"
+                                    Command="{Binding Path=PreviousClick,  Source={StaticResource Time}}"
+                                    BorderThickness="0"
+                                    Content="&lt;"
+                                    HorizontalContentAlignment="Left">
+                                <Button.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource DateTime}"
+                                                  ConverterParameter="1">
+                                        <Binding ElementName="YEAR"
+                                                 Mode="TwoWay" />
+                                        <Binding ElementName="MONTH"
+                                                 Mode="TwoWay" />
+                                    </MultiBinding>
+                                </Button.CommandParameter>
+                            </Button>
+                            <TextBlock Grid.Column="1"
+                                       HorizontalAlignment="Center">
+                                <Run x:Name="YEAR"
+                                     Text="{Binding ElementName=UC_DateTime_,Path=SetYear}" />
+                                <Run Text="年" />
+                                <Run x:Name="MONTH"
+                                     Text="{Binding ElementName=UC_DateTime_,Path=SetMonth}" />
+                                <Run Text="月" /></TextBlock>
+                            <Button x:Name="NextButton"
+                                    Grid.Column="2"
+                                    Command="{Binding Source={StaticResource Time}, Path=NextClick}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Content="&gt;"
+                                    HorizontalContentAlignment="Right">
+                                <Button.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource DateTime}"
+                                                  ConverterParameter="1">
+                                        <Binding ElementName="YEAR"
+                                                 Mode="TwoWay" />
+                                        <Binding ElementName="MONTH"
+                                                 Mode="TwoWay" />
+                                    </MultiBinding>
+                                </Button.CommandParameter>
+                            </Button>
+                        </Grid>
+                        <ItemsControl   Grid.Row="1"
+                                        ItemsSource="{Binding Source={StaticResource Week}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel   Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorLevel=1,AncestorType=ItemsControl}, Path=ActualWidth}"
+                                                 ItemWidth="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Width,Converter={StaticResource AutoWidth}}" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding }"
+                                               HorizontalAlignment="Center" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Border Grid.Row="2"
+                                Margin="{TemplateBinding Margin}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ScrollViewer Padding="3"
+                                          VerticalScrollBarVisibility="Hidden">
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </ListBox.Template>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <ControlTemplate.Resources>
+                                    <SolidColorBrush Color="{Binding ElementName=UC_DateTime_, Path=SelectItemListBackGround}"
+                                                     x:Key="ListSelectedColor" />
+                                    <SolidColorBrush Color="{Binding ElementName=UC_DateTime_, Path=SelectItemBackGround}"
+                                                     x:Key="SelectedColor" />
+                                </ControlTemplate.Resources>
+                                <CheckBox  x:Name="cb"
+                                           IsChecked="{Binding ItemIsSelected,Mode=TwoWay}"
+                                           ClickMode="Release"
+                                           Command="{Binding  Click,Source={StaticResource Time }}"
+                                           CommandParameter="{ Binding RelativeSource={RelativeSource Mode=Self}, Path=DataContext}">
+                                    <CheckBox.Template>
+                                        <ControlTemplate>
+                                            <Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Rectangle Margin="0,2,0,2"
+                                                               Grid.Column="0"
+                                                               Fill="{Binding ElementName=UC_DateTime_, Path=SelectItemListBackGround }"
+                                                               x:Name="LeftBackGround"
+                                                               Visibility="Collapsed" />
+                                                    <Rectangle Margin="0,2,0,2"
+                                                               Grid.Column="1"
+                                                               Fill="{Binding ElementName=UC_DateTime_, Path=SelectItemListBackGround }"
+                                                               x:Name="RightBackGround"
+                                                               Visibility="Collapsed" />
+                                                    <Ellipse Grid.ColumnSpan="2"
+                                                             x:Name="bd"
+                                                             Width="{Binding ElementName=UC_DateTime_, Path=BackGroundEllipesSize}"
+                                                             Height="{Binding ElementName=UC_DateTime_, Path=BackGroundEllipesSize}" />
+                                                </Grid>
+                                                <TextBlock   x:Name="txt"
+                                                             Text="{Binding Time}"
+                                                             FontSize="{Binding ElementName=UC_DateTime_, Path=DateTimeFontSize}"
+                                                             HorizontalAlignment="Center"
+                                                             VerticalAlignment="Center" />
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Time}"
+                                                             Value="0">
+                                                    <Setter Property="IsEnabled"
+                                                            Value="False" />
+                                                    <Setter Property="Text"
+                                                            TargetName="txt"
+                                                            Value="" />
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding ItemIsSelected}"
+                                                                   Value="true" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Fill"
+                                                            TargetName="bd"
+                                                            Value="{Binding ElementName=UC_DateTime_, Path=SelectItemBackGround }" />
+                                                </MultiDataTrigger>
+                                                <DataTrigger Binding="{Binding ItemIsSelected}"
+                                                             Value="false">
+                                                    <Setter Property="Fill"
+                                                            Value="White"
+                                                            TargetName="bd" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding BackGroundShowMode}"
+                                                             Value="None">
+                                                    <Setter TargetName="LeftBackGround"
+                                                            Property="Visibility"
+                                                            Value="Collapsed" />
+                                                    <Setter TargetName="RightBackGround"
+                                                            Property="Visibility"
+                                                            Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding BackGroundShowMode}"
+                                                             Value="Right">
+                                                    <Setter TargetName="LeftBackGround"
+                                                            Property="Visibility"
+                                                            Value="Collapsed" />
+                                                    <Setter TargetName="RightBackGround"
+                                                            Property="Visibility"
+                                                            Value="Visible" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding BackGroundShowMode}"
+                                                             Value="Left">
+                                                    <Setter TargetName="LeftBackGround"
+                                                            Property="Visibility"
+                                                            Value="Visible" />
+                                                    <Setter TargetName="RightBackGround"
+                                                            Property="Visibility"
+                                                            Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding BackGroundShowMode}"
+                                                             Value="Both">
+                                                    <Setter TargetName="LeftBackGround"
+                                                            Property="Visibility"
+                                                            Value="Visible" />
+                                                    <Setter TargetName="RightBackGround"
+                                                            Property="Visibility"
+                                                            Value="Visible" />
+                                                    <Setter Property="Visibility"
+                                                            TargetName="bd"
+                                                            Value="Hidden" />
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </CheckBox.Template>
+                                </CheckBox>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+    </Grid>
+</UserControl>
